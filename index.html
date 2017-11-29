@@ -1,0 +1,501 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><script type="text/javascript">
+var bs = {
+	version:'Keul 2.01 16/01/2015 15h55',
+
+	configuration:
+	{
+		liste_jeux:
+		[
+			//mettre ici la liste des jeux et leurs nom de répertoire
+			['Otaku Adventure','otaku_adventure','[Brigade-SOS]'],
+			['Dessiner, c\'est Kancolle !','dck','[Brigade-SOS]'],
+			['Blind tests','blind_test','[Brigade-SOS]'],
+			['Epices et Louve','swel','[Spice & Wolf]'],
+			
+			
+			
+			
+			
+			//['Loto','loto','[Brigade-SOS]'],
+		],
+		titre:'Brigade-sos.fr - Activités',
+		version:'20 dec 2011 - 13:35:00',
+	},
+	
+
+	
+	
+	
+	
+
+	// /!\ Ne pas modifier la suite du fichier /!\ 
+	online:'',
+	public_popup:'',
+	mode_affichage:'videoproj',
+	type_presa:'undef',
+	jeux:[],
+	fichiers_inclus:[],
+	
+	
+	
+	
+	open_popup: function(titre)
+	{
+		bs.close_popup();
+		//fenêtre de popup a mettre sur le vidéo-proj
+		bs.public_popup=open('','popup','width=640,height=480,toolbar=no,scrollbars=no,resizable=yes');
+		if(!bs.public_popup) {
+			alert('Veuillez autoriser les popups');
+			return false;
+		}
+		
+		bs.public_popup.document.write(
+		'<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'+
+		'<link rel="stylesheet" type="text/css" href="style.css"/>'+
+		'<body class="popup img_sombre">'+
+		'<h1 class="center" style="text-shadow:4px 4px 4px #ffffff;">'+titre+'</h1>'+
+		'<div id="publicoppup_id"></div></body></html>');
+		
+		
+		
+		bs.public_popup.document.close(); // hide status msg displaying "transferring", thx http://forums.mozillazine.org/viewtopic.php?f=25&t=342657
+		
+		
+		return true;
+	},
+	close_popup: function()
+	{
+		if(bs.public_popup)
+		{
+			bs.public_popup.close();
+		}
+	},
+	
+	disp_liste_jeux: function()
+	{		
+		bs.close_popup();
+		
+		var contenu='<h1 class="center">'+bs.configuration.titre+'</h1>';
+		contenu+='<span style="position:absolute;right:10px;top:10px;" class="bouton2 img_help" onclick="bs.disp_aide(\'general\');"><strong>Aide<!-- Tomoushi --></strong></span>'; 
+		contenu+='<span style="position:absolute;left:10px;top:10px;" class="bouton2 img_key" onclick="bs.disp_admin();"> Administration</strong>';
+		contenu+=(bs.online) ? '' : ' (connexion internet requise !)';
+		contenu+='</span>'; 
+		document.getElementById('header_id').innerHTML=contenu;
+		
+		//type (videoproj/ipad/...)
+		var videoproj_checked=(bs.mode_affichage=='videoproj')?'checked':'';
+		var videoproj_class=(bs.mode_affichage=='videoproj')?'buttonchecked':'buttonunchecked';
+		var tablette_checked=(bs.mode_affichage=='tablette')?'checked':'';
+		var tablette_class=(bs.mode_affichage=='tablette')?'buttonchecked':'buttonunchecked';
+		
+		var contenu='<div class="center">'+
+			'<p><label class="bouton2 '+videoproj_class+'" for="radio_videoproj_id"><input type="radio" name="type-presentation" value="videoproj" id="radio_videoproj_id" onclick="bs.mode_affichage=this.value;bs.disp_liste_jeux();" '+videoproj_checked+'> Vidéo-projecteur</label> '+
+			'   <label class="bouton2 '+tablette_class+'" for="radio_tablette_id"><input type="radio" name="type-presentation" value="tablette" id="radio_tablette_id" onclick="bs.mode_affichage=this.value;bs.disp_liste_jeux();" '+tablette_checked+'>Tablette</label></p>';
+
+		//liste des jeux
+		for(gamekey in bs.configuration.liste_jeux)
+		{
+			contenu+='<p><strong><span class="bouton" onclick="bs.launchgame('+gamekey+');">'+bs.configuration.liste_jeux[gamekey][0]+' '+bs.configuration.liste_jeux[gamekey][2]+'</span></strong></p>';
+		}
+		contenu+='</div>';
+		contenu+='<div>VERSION: '+bs.version+'</div>';
+		
+		document.getElementById('content_id').innerHTML=contenu;
+		
+		
+	},
+	
+	disp_aide: function(gamekey)
+	{
+		
+		if(gamekey=='general_firststart' || gamekey=='general') { // || true
+			//entete
+			//var contenu='<h1 class="center">Aide</h1>';
+			//contenu+='<span style="position:absolute;left:10px;top:10px;" class="bouton2 img_house" onclick="bs.disp_liste_jeux();"><strong> Accueil</strong></span>'; 
+			//document.getElementById('header_id').innerHTML=contenu;
+		
+		
+			var contenu='<div class="whitebg">';
+			if(gamekey=='general_firststart') {
+				contenu+='<ul class="deco"><strong style="color:red"><li>Premier lancement de Tomoushi sur ce navigateur.';
+				contenu+=' Vous pourrez revenir à cette page avec le bouton "Aide" en haut à droite.</li></strong></ul>';
+			}
+			
+			
+			
+			contenu+='<h2>Sommaire</h2>';
+			contenu+='<h3><a style="color:blue;" href="#aide_general">Fonctionnement Général</a></h3>';
+			contenu+='<h3><a style="color:blue;" href="#aide_otaku_adventure">Otaku Adventure</a></h3>';
+			contenu+='<h3><a style="color:blue;" href="#aide_kancolle">Dessinez c\'est Kancolle</a></h3>';
+			
+			contenu+='<h3 id="aide_general">Fonctionnement Général</h3>';
+			
+			contenu+='<ul class="deco">';
+			contenu+='<li><span style="color:red">TESTEZ l\'application AVANT de partir en convention et dans les mêmes conditions (même PC portable/tablette sans wifi activé)!</span></li>';
+			contenu+='<li>Si vous avez un message d\'erreur "Veuillez autoriser les popups", vous devez désactiver le blocage des popup.</ul>';
+			contenu+='<li>Si vous avez un message d\'erreur "Veuillez autoriser les cookies dans votre navigateur", activez les cookies dans votre navigateur. (Sous Chrome, regarez l\'icone à droite de la barre d\'adresse)</ul>';
+			contenu+='<li>En cas de problème, contactez Keul (keul@brigade-sos.fr ou 06 73 11 49 45)</li>';
+			contenu+='</ul>';
+			
+			
+			
+			contenu+='<p>Pour télécharger tomoushi en local, cliquez sur le bouton "Administration" en haut à gauche puis sur le bouton "Archive autonome". Cliquez sur le bouton Accueil au même emplacement pour revenir à l\'accueil.</p>';
+			contenu+='<p>Choisissez le mode vidéo-projecteur si vous avez un écran pour le staff et un écran/video-porjecteur pour le publique. Le mode tablette (pour Otaku Adventure uniquement pour l\'instant) sers à pouvoir masquer les réponses lorsque le public voit le même écran (réservé pour les petites conventions, quand on a moins de 10 eprsones autour d\'une table)</p>';
+			
+			
+			
+			contenu+='<h3 id="aide_otaku_adventure">Otaku Adventure</h3>';
+			contenu+='<p>[en cours de rédaction]</p>';
+			contenu+='<p></p>';
+			
+			
+			contenu+='<h3 id="aide_kancolle">Dessinez c\'est Kancolle</h3>';
+			contenu+='<p>Cliquez sur le bouton pour lancer le jeu. Le popup s\'ouvre pour le publique.</p>';
+			contenu+='<p>Il faut avoir configuré le système d\'exploitation en mode "écran élargi" (surtout pas en mode mirroir).</p>';
+			contenu+='<p>Déplacez la fenêtre popup sur l\'écran correspondant au video-projecteur, puis maximisez la fenêtre en appuyant sur F11</p>';
+			contenu+='<p>Cliquez sur le bonton Étalonner dans l\'écran privé pour faire apparaitre le tableau</p>';
+
+
+
+			contenu+='<p>Cliquer dans la fenêtre du popup et adapter la taille du plateau à la résolution du videoprojecteur.</p>';
+			contenu+='<p>Recliquez sur le bouton Étalonner pour masquer le tableau d\'étalonnage.</p>';
+			contenu+='<p>Choisir le nombre d\'équipes et de bateaus par équipe, puis cliquer sur "Afficher les regles et placer les bateaux"</p>';
+			contenu+='<p>La première équipe à rendre la feuille deviens l\'équipe 1 (bleu). Le marquer au stylo sur la feuille et cliquer sur les positions des bateaux à l\'écran pour les placer.</p>';
+			contenu+='<p>Après avoir positionné les X bateaux, le texte du haut change et indique quel équipe (et couleur) sera ensuite placée.</p>';
+			
+			contenu+='<p>ATTENTION A NE PAS CLIQUER A COTÉ sous peine de devoir tout recommencer.</p>';
+			contenu+='<p>Lorsque tout les bateaux sont placés ("Tous les bateaux sont positionnés" s\'affiche), on peut lancer la partie.</p>';
+			contenu+='<p><strong>Déroulement de la partie:</strong></p>';
+			contenu+='<p>Si les graphistes utilisent une tablette, cliquer sur le bouton dessiner pour faire apparaitre le tableau mirroir. Cliquer sur le bouton retour pour revenir au plateau de jeu.</p>';
+			contenu+='<p>En cliquant sur une case, une image apparait par transparence indiquant l\'endroit où les personnes souhaitent tirer. (le publique voit la position qui sera torpillée). Cliquez une seconde fois sur la case valider le tir. Sinon, cliquer sur le bouton "ANNULER LE TIR" pour retirer le tir (ou tous les tirs s\'il y a eu plusieurs cases différentes de cliquées)</p>';
+			contenu+='<p>LES SCORES SONT AFFICHÉS À DROITE</p>';
+			contenu+='<p>L\'équipe gagnante est cele qui reste ou qui a le plus de bateaux à la fin de la partie</p>';
+			contenu+='<p></p>';
+			contenu+='<p></p>';
+			
+			
+			contenu+='';
+			
+			
+			
+			
+			
+			
+			
+			contenu+='</div>';
+		
+		
+			
+		
+		
+			
+			//document.getElementById('content_id').innerHTML=contenu;
+			
+			// affichage de l'aide dans un popup
+			bs.popup_aide=open('','popup2','width=800,height=600,toolbar=yes,scrollbars=yes,resizable=yes');
+			if(!bs.popup_aide) {
+				alert('Veuillez autoriser les popups');
+				return false;
+			}
+			
+			bs.popup_aide.document.write(
+			'<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'+
+			'<link rel="stylesheet" type="text/css" href="style.css"/>'+
+			'<body class="popup img_sombre">'+
+			'<h1 class="center" style="text-shadow:4px 4px 4px #ffffff;">Aide</h1>'+
+			'<div id="aide_popup_id">'+contenu+'</div></body></html>');
+			
+			
+			bs.popup_aide.document.close(); // hide status msg displaying "transferring", thx http://forums.mozillazine.org/viewtopic.php?f=25&t=342657
+		
+		
+			
+			
+			
+			
+		} else {
+			gameid=bs.configuration.liste_jeux[gamekey][1]
+			gamename=bs.configuration.liste_jeux[gamekey][0]
+		
+		
+			//entete
+			var contenu='<h1 class="center">Aide de '+gamename+'</h1>';
+			contenu+='<span style="position:absolute;left:10px;top:10px;" class="bouton2 img_house" onclick="bs.launchgame('+gamekey+');"><strong> Retour '+gamename+'</strong></span>'; 
+			document.getElementById('header_id').innerHTML=contenu;
+			
+			document.getElementById('content_id').innerHTML=bs.jeux[gameid].disp_aide();
+		}
+	
+
+		
+	},
+	
+	
+	disp_admin: function()
+	{
+	
+		//entete
+		var contenu='<h1 class="center">'+bs.configuration.titre+'</h1>';
+		contenu+='<span style="position:absolute;left:10px;top:10px;" class="bouton2 img_house" onclick="bs.disp_liste_jeux();"><strong>Accueil</strong></span>'; 
+		document.getElementById('header_id').innerHTML=contenu;
+	
+		
+		//affichage de la liste des jeux
+		var contenu='<div class="center">';	
+		for(gamenum in bs.configuration.liste_jeux)
+		{
+			contenu+='<p><strong><a class="bouton" href="./'+bs.configuration.liste_jeux[gamenum][1]+'/admin.php">'+bs.configuration.liste_jeux[gamenum][0]+'</a></strong></p>';
+		}
+		//contenu+='<p><strong><a class="bouton" href="config.php?download"><img src="compress.png"> Archive autonome .zip</a></strong>';
+		//contenu+='<br>Attention, l\'archive de  (~500Mo) contiens les musiques<br>mais ne permet pas de modifier les questions</p>';
+		
+		contenu+='<p><strong><a class="bouton" href="config.php?download_light"><img src="compress.png"> Archive autonome .zip</a></strong>';
+		contenu+='<br>Attention, l\'archive (~2Mo) ne permet pas de modifier les questions</p>';
+		
+		
+		contenu+='</div>';
+		document.getElementById('content_id').innerHTML=contenu;
+	},
+	
+	
+	
+	
+	//lancement d'un jeu
+	launchgame: function(gamekey)
+	{
+		gameid=bs.configuration.liste_jeux[gamekey][1]
+		gamename=bs.configuration.liste_jeux[gamekey][0]
+	
+		//entete
+		var contenu='<h1 class="center">'+gamename+'</h1>';
+		//contenu+='<span style="position:absolute;right:10px;top:10px;" class="bouton2 img_help" onclick="bs.disp_aide('+gamekey+');"><strong> Aide <!--'+gamename+'--></strong></span>'; 
+		contenu+='<span style="position:absolute;left:10px;top:10px;" class="bouton2 img_house" onclick="bs.disp_liste_jeux();"><strong>Accueil</strong></span>'; 
+		document.getElementById('header_id').innerHTML=contenu;
+	
+		document.getElementById('content_id').innerHTML='Chargement...';
+		
+		
+
+		loaded=bs.load_file('./'+gameid+'/index.js');
+		if(!loaded) { // n'a pas été chargé car déjà inclus depuis un moment
+			bs.jeux[gameid].start();
+		}
+
+	},
+	
+	//Chargement des fichiers (qui ne l'ont pas déjà été)
+    load_file: function(file)
+	{
+		if(bs.fichiers_inclus.indexOf(file) == -1) {
+	
+			newelement=document.createElement('script');
+			newelement.type='text/javascript';
+			newelement.src=file;
+			document.body.appendChild(newelement);
+			
+			bs.fichiers_inclus.push(file);
+			
+			return true;
+		} else {
+			return false;
+		}
+    },
+	
+	
+	//gestion des sauvegardes
+	sauver: function(jeu, nom, donnee)
+	{
+		var nom_sauve='bs-'+jeu+'-'+nom
+		
+		bs.jeux[jeu].sauvegarde[nom]=donnee
+		// utilisation de LocalStorage
+		if(typeof(Storage)!=="undefined") {
+			window.localStorage.setItem(nom_sauve,escape(donnee));
+		//fallback sur cookie
+		} else {
+			bs.set_cookie(nom_sauve,donnee,new Date((new Date()).getTime()+365*24*3600*1000));
+		
+		}
+		
+		
+	},
+	charger: function(jeu, nom)
+	{	
+		var nom_sauve='bs-'+jeu+'-'+nom
+		
+		// utilisation de LocalStorage
+		if(typeof(Storage)!=="undefined") {
+		
+			var ls=window.localStorage.getItem(nom_sauve);
+			if (ls) {
+				bs.jeux[jeu].sauvegarde[nom]= unescape(ls)
+			} else	{
+				bs.jeux[jeu].sauvegarde[nom]='';
+			}
+			
+		//fallback sur cookie
+		} else {
+			if(bs.get_cookie('bs-'+jeu+'-'+nom)) {
+				bs.jeux[jeu].sauvegarde[nom]=bs.get_cookie(nom_sauve);
+			} else	{
+				bs.jeux[jeu].sauvegarde[nom]='';
+			}
+		
+		}
+	
+	
+	
+	
+	
+	
+	},
+	verifier: function(jeu, nom) {
+		var nom_sauve='bs-'+jeu+'-'+nom
+		
+		if(typeof(Storage)!=="undefined") {
+			return window.localStorage.getItem(nom_sauve);
+		} else {
+			return bs.get_cookie(nom_sauve);
+		
+		}
+		
+	},
+	
+	
+	/*
+	//gestion des sauvegardes avec localStorage
+	if(typeof(Storage)==="undefined") alert('fail');
+	
+	storagename='test'
+	datastr=escape(datastr);
+	window.localStorage.setItem(storagename,datastr);
+	if (!window.localStorage.getItem(storagename)){
+		alert('good');
+	}else {
+		alert('bad');
+	}
+
+
+	var localStorage=window.localStorage.getItem(storagename);
+	if (localStorage)//no localstorage save found? let's get the cookie one last time
+	{
+	datastr=unescape(localStorage);
+	}
+	*/
+	
+	
+	//gestion du cookie
+	check_cookie: function( name, value, expires, path, domain, secure)
+	{
+		document.cookie = name + "=" + escape (value) +
+		((expires) ? "; expires="+expires.toGMTString():"")+
+		((path) ? "; path="+path:"") +
+		((domain) ? "; domain="+domain:"") +
+		((secure) ? "; secure":"");
+		if(bs.get_cookie(name)!=value) {
+			alert('Veuillez autoriser les cookies dans votre navigateur!');
+		}
+	},
+	set_cookie: function( name, value, expires, path, domain, secure)
+	{
+		document.cookie = name + "=" + escape (value) +
+		((expires) ? "; expires="+expires.toGMTString():"")+
+		((path) ? "; path="+path:"") +
+		((domain) ? "; domain="+domain:"") +
+		((secure) ? "; secure":"");
+		if(bs.get_cookie(name)!=value) {
+			alert('Erreur critique - Problème d\'enregistrement de cookie');
+		}
+	},
+	get_cookie: function (name)
+	{
+		if ( document.cookie)
+		{ 
+			index = document.cookie.indexOf( name+'=');
+			if ( index != -1)
+			{
+				nDeb = (document.cookie.indexOf( '=', index) + 1);
+				nFin = document.cookie.indexOf( ';', index);
+				if (nFin == -1) {nFin = document.cookie.length;}
+				return unescape(document.cookie.substring(nDeb, nFin));
+			}
+		}
+		return null;
+	},
+	
+	stop: function()
+	{
+		//fermeture du popup
+		bs.close_popup();
+	},
+	
+	start: function()
+	{
+		bs.online=(window.location.protocol=='http:' || window.location.protocol=='https:');
+		
+		//gestion du titre
+		newelement=document.createElement('title');
+		newelement.innerHTML=bs.configuration.titre;
+		document.head.appendChild(newelement);
+
+		//gestion de la page web
+		newelement=document.createElement('div');
+		newelement.id='header_id';
+		document.body.appendChild(newelement);
+		
+		newelement=document.createElement('div');
+		newelement.id='content_id';
+		document.body.appendChild(newelement);
+		
+		if(!bs.get_cookie('brigadesos')) {
+			bs.disp_liste_jeux();
+			//bs.disp_aide('general_firststart');
+		} else {
+			//lister les jeux disponibles
+			bs.disp_liste_jeux();
+		}
+		
+		//tester cookies
+		//bs.check_cookie('brigadesos',1,new Date((new Date()).getTime()+365*24*3600*1000));
+		
+		
+		//bs.mode_affichage='tablette';
+		//bs.launchgame(xxxxxxxx);
+		//bs.launchgame(xxxxxxxxxx);
+		
+	},
+	
+	
+}
+
+
+/* ---------------------------
+INITIALISATION DE LA PAGE + REDIM
+ --------------------------- */
+if (window.addEventListener)
+{
+    window.addEventListener("load", bs.start, false);
+    window.addEventListener("unload", bs.stop, false);
+}
+else if (window.attachEvent)
+{
+    window.attachEvent("onload", bs.start);
+    window.attachEvent("onunload", bs.stop);
+}
+else
+{
+    window.onload = bs.start;
+    window.onunload = bs.stop;
+}
+
+
+
+//debug only
+function print_r(x, max, sep, l) { l = l || 0; max = max || 8; sep = sep || ' '; if (l > max) { return "[WARNING: Too much recursion]\n"; } var i, r = '', t = typeof x, tab = ''; if (x === null) { r += "(null)\n"; } else if (t == 'object') { l++; for (i = 0; i < l; i++) { tab += sep; } if (x && x.length) { t = 'array'; } r += '(' + t + ") :\n"; for (i in x) { try { r += tab + '[' + i + '] : ' + print_r(x[i], max, sep, (l + 1)); } catch(e) { return "[ERROR: " + e + "]\n"; } } } else { if (t == 'string') { if (x == '') { x = '(empty)'; } } r += '(' + t + ') ' + x + "\n"; } return r; }; 
+
+
+
+
+//--></script>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+</head><body class="popupclair img_clair"></body></html>
