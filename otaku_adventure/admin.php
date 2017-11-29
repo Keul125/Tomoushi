@@ -1,7 +1,7 @@
 <?php
 
-define('OTAQUEST_GSHEET_WEBURL',"https://docs.google.com/spreadsheets/d/1JgfuJHCZQK_kRkEZ5C6PS7Kyu0OaBQB07KllWhuR1Hs/pubhtml");
-define('OTAQUEST_GSHEET_URL',"https://docs.google.com/spreadsheets/d/1JgfuJHCZQK_kRkEZ5C6PS7Kyu0OaBQB07KllWhuR1Hs/edit#gid=0");
+define('OTAQUEST_GSHEET_WEBURL',"https://docs.google.com/spreadsheets/d/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/pubhtml");
+define('OTAQUEST_GSHEET_URL',"https://docs.google.com/spreadsheets/d/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/edit#gid=0");
 
 
 //récuperation des infos de config à la BDD
